@@ -8,9 +8,9 @@ Requires a C++ compiler with variadic template (since C++11) capability.
 
 ### Usage
 
-* `Jpath::get(doc, ref /* out */, ... /* path */)`: reads `ref` from `val` along with the specific path; fails if any intermediate node does not exist
+* `Jpath::get(val, ref /* out */, ... /* path */)`: reads `ref` from `val` along with the specific path; fails if any intermediate node does not exist
 	* returns `true` for success, `false` for fail
-* `Jpath::set(doc, val, ref /* in */, ... /* path */)`: writes `ref` to `val` along with the specific path; omitted intermediate nodes are be generated
+* `Jpath::set(doc, val, ref /* in */, ... /* path */)`: writes `ref` to `val` along with the specific path; omitted intermediate nodes are generated
 	* returns `true` for success, `false` for fail
 
 ### Example
@@ -43,11 +43,11 @@ The above code manipulates a JSON as:
 
 ```json
 {
-	"hello": [
-		{
-			"world": ...,
-			"pi": ...
-		}
-	]
+  "hello": [
+    {
+      "world": ...,
+      "pi": ...
+    }
+  ]
 }
 ```
