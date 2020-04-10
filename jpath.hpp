@@ -31,7 +31,7 @@
 #include <string>
 
 /*
-** {========================================================
+** {===========================================================================
 ** Jpath
 */
 
@@ -142,7 +142,7 @@ template<typename Ret, typename ...Path> bool get(const rapidjson::Value &obj, R
 
 	return getValue(*tmp, ret);
 }
-template<template <typename T, typename A = std::allocator<T> > typename Coll, typename Val, typename ...Path> bool get(const rapidjson::Value &obj, Coll<Val> &ret, Path ...path) {
+template<template<typename T, typename A = std::allocator<T> > typename Coll, typename Val, typename ...Path> bool get(const rapidjson::Value &obj, Coll<Val> &ret, Path ...path) {
 	const rapidjson::Value* tmp = nullptr;
 	if (!read(obj, tmp, path ...))
 		return false;
@@ -174,7 +174,7 @@ template<typename Src, typename ...Path> bool set(rapidjson::Document &doc, rapi
 
 	return true;
 }
-template<template <typename T, typename A = std::allocator<T> > typename Coll, typename Val, typename ...Path> bool set(rapidjson::Document &doc, rapidjson::Value &obj, const Coll<Val> &src, Path ...path) {
+template<template<typename T, typename A = std::allocator<T> > typename Coll, typename Val, typename ...Path> bool set(rapidjson::Document &doc, rapidjson::Value &obj, const Coll<Val> &src, Path ...path) {
 	rapidjson::Value* tmp = nullptr;
 	if (!write(doc, obj, tmp, path ...))
 		return false;
@@ -194,6 +194,34 @@ inline bool getValue(const rapidjson::Value &obj, bool &ret) {
 	if (!obj.IsBool())
 		return false;
 	ret = obj.GetBool();
+
+	return true;
+}
+inline bool getValue(const rapidjson::Value &obj, char &ret) {
+	if (!obj.IsNumber())
+		return false;
+	ret = (char)obj.GetInt();
+
+	return true;
+}
+inline bool getValue(const rapidjson::Value &obj, unsigned char &ret) {
+	if (!obj.IsNumber())
+		return false;
+	ret = (unsigned char)obj.GetInt();
+
+	return true;
+}
+inline bool getValue(const rapidjson::Value &obj, short &ret) {
+	if (!obj.IsNumber())
+		return false;
+	ret = (short)obj.GetInt();
+
+	return true;
+}
+inline bool getValue(const rapidjson::Value &obj, unsigned short &ret) {
+	if (!obj.IsNumber())
+		return false;
+	ret = (unsigned short)obj.GetInt();
 
 	return true;
 }
@@ -270,6 +298,18 @@ inline bool getValue(const rapidjson::Value &obj, std::string &ret) {
 inline void setValue(rapidjson::Value &obj, bool src, rapidjson::Document &) {
 	obj.SetBool(src);
 }
+inline void setValue(rapidjson::Value &obj, char src, rapidjson::Document &) {
+	obj.SetInt(src);
+}
+inline void setValue(rapidjson::Value &obj, unsigned char src, rapidjson::Document &) {
+	obj.SetInt(src);
+}
+inline void setValue(rapidjson::Value &obj, short src, rapidjson::Document &) {
+	obj.SetInt(src);
+}
+inline void setValue(rapidjson::Value &obj, unsigned short src, rapidjson::Document &) {
+	obj.SetInt(src);
+}
 inline void setValue(rapidjson::Value &obj, int src, rapidjson::Document &) {
 	obj.SetInt(src);
 }
@@ -306,6 +346,6 @@ inline void setValue(rapidjson::Value &obj, const rapidjson::Value &src, rapidjs
 
 }
 
-/* ========================================================} */
+/* ===========================================================================} */
 
 #endif /* __JPATH_H__ */
