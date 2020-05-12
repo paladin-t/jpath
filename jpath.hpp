@@ -42,7 +42,7 @@ inline bool read(const rapidjson::Value &obj, const rapidjson::Value* &ret, int 
 		ret = nullptr;
 	if (!obj.IsArray() || node < 0)
 		return false;
-	if ((rapidjson::SizeType)node >= obj.Capacity())
+	if ((rapidjson::SizeType)node >= obj.Size())
 		return false;
 
 	ret = &obj[node];
@@ -82,7 +82,7 @@ inline bool write(rapidjson::Document &doc, rapidjson::Value &obj, rapidjson::Va
 		return false;
 	if (!obj.IsArray())
 		obj.SetArray();
-	while ((rapidjson::SizeType)node >= obj.Capacity()) {
+	while ((rapidjson::SizeType)node >= obj.Size()) {
 		rapidjson::Value val;
 		val.SetNull();
 		obj.PushBack(val, doc.GetAllocator());
@@ -152,7 +152,7 @@ template<template<typename T, typename A = std::allocator<T> > typename Coll, ty
 		return false;
 
 	Coll<Val> result;
-	for (rapidjson::SizeType i = 0; i < tmp->Capacity(); ++i) {
+	for (rapidjson::SizeType i = 0; i < tmp->Size(); ++i) {
 		Val val;
 		if (!getValue(tmp[i], val))
 			return false;
@@ -292,6 +292,11 @@ inline bool getValue(const rapidjson::Value &obj, std::string &ret) {
 	if (!obj.IsString())
 		return false;
 	ret = obj.GetString();
+
+	return true;
+}
+inline bool getValue(const rapidjson::Value &obj, const rapidjson::Value* ret) {
+	ret = &obj;
 
 	return true;
 }
