@@ -295,7 +295,7 @@ inline bool getValue(const rapidjson::Value &obj, std::string &ret) {
 
 	return true;
 }
-inline bool getValue(const rapidjson::Value &obj, const rapidjson::Value* ret) {
+inline bool getValue(const rapidjson::Value &obj, const rapidjson::Value* &ret) {
 	ret = &obj;
 
 	return true;
