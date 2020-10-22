@@ -13,18 +13,22 @@
 // specific language governing permissions and limitations under the License.
 
 #include "unittest.h"
-#include "rapidjson/internal/strfunc.h"
+#include "rapidjson/internal/clzll.h"
 
-using namespace rapidjson;
+#ifdef __GNUC__
+RAPIDJSON_DIAG_PUSH
+#endif
+
 using namespace rapidjson::internal;
 
-TEST(StrFunc, CountStringCodePoint) {
-    SizeType count;
-    EXPECT_TRUE(CountStringCodePoint<UTF8<> >("", 0, &count));
-    EXPECT_EQ(0u, count);
-    EXPECT_TRUE(CountStringCodePoint<UTF8<> >("Hello", 5, &count));
-    EXPECT_EQ(5u, count);
-    EXPECT_TRUE(CountStringCodePoint<UTF8<> >("\xC2\xA2\xE2\x82\xAC\xF0\x9D\x84\x9E", 9, &count)); // cents euro G-clef
-    EXPECT_EQ(3u, count);
-    EXPECT_FALSE(CountStringCodePoint<UTF8<> >("\xC2\xA2\xE2\x82\xAC\xF0\x9D\x84\x9E\x80", 10, &count));
+TEST(clzll, normal) {
+    EXPECT_EQ(clzll(1), 63U);
+    EXPECT_EQ(clzll(2), 62U);
+    EXPECT_EQ(clzll(12), 60U);
+    EXPECT_EQ(clzll(0x0000000080000001UL), 32U);
+    EXPECT_EQ(clzll(0x8000000000000001UL), 0U);
 }
+
+#ifdef __GNUC__
+RAPIDJSON_DIAG_POP
+#endif

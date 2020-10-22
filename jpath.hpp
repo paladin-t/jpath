@@ -198,70 +198,70 @@ inline bool getValue(const rapidjson::Value &obj, bool &ret) {
 	return true;
 }
 inline bool getValue(const rapidjson::Value &obj, char &ret) {
-	if (!obj.IsNumber())
+	if (!obj.IsInt())
 		return false;
 	ret = (char)obj.GetInt();
 
 	return true;
 }
 inline bool getValue(const rapidjson::Value &obj, unsigned char &ret) {
-	if (!obj.IsNumber())
+	if (!obj.IsUint())
 		return false;
-	ret = (unsigned char)obj.GetInt();
+	ret = (unsigned char)obj.GetUint();
 
 	return true;
 }
 inline bool getValue(const rapidjson::Value &obj, short &ret) {
-	if (!obj.IsNumber())
+	if (!obj.IsInt())
 		return false;
 	ret = (short)obj.GetInt();
 
 	return true;
 }
 inline bool getValue(const rapidjson::Value &obj, unsigned short &ret) {
-	if (!obj.IsNumber())
+	if (!obj.IsUint())
 		return false;
-	ret = (unsigned short)obj.GetInt();
+	ret = (unsigned short)obj.GetUint();
 
 	return true;
 }
 inline bool getValue(const rapidjson::Value &obj, int &ret) {
-	if (!obj.IsNumber())
+	if (!obj.IsInt())
 		return false;
 	ret = obj.GetInt();
 
 	return true;
 }
 inline bool getValue(const rapidjson::Value &obj, unsigned &ret) {
-	if (!obj.IsNumber())
+	if (!obj.IsUint())
 		return false;
 	ret = obj.GetUint();
 
 	return true;
 }
 inline bool getValue(const rapidjson::Value &obj, long &ret) {
-	if (!obj.IsNumber())
+	if (!obj.IsInt64())
 		return false;
 	ret = (long)obj.GetInt64();
 
 	return true;
 }
 inline bool getValue(const rapidjson::Value &obj, unsigned long &ret) {
-	if (!obj.IsNumber())
+	if (!obj.IsUint64())
 		return false;
 	ret = (unsigned long)obj.GetUint64();
 
 	return true;
 }
 inline bool getValue(const rapidjson::Value &obj, long long &ret) {
-	if (!obj.IsNumber())
+	if (!obj.IsInt64())
 		return false;
 	ret = obj.GetInt64();
 
 	return true;
 }
 inline bool getValue(const rapidjson::Value &obj, unsigned long long &ret) {
-	if (!obj.IsNumber())
+	if (!obj.IsUint64())
 		return false;
 	ret = obj.GetUint64();
 

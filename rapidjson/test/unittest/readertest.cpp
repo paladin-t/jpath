@@ -1,6 +1,6 @@
 // Tencent is pleased to support the open source community by making RapidJSON available.
 //
-// Copyright (C) 2015 THL A29 Limited, a Tencent company, and Milo Yip. All rights reserved.
+// Copyright (C) 2015 THL A29 Limited, a Tencent company, and Milo Yip.
 //
 // Licensed under the MIT License (the "License"); you may not use this file except
 // in compliance with the License. You may obtain a copy of the License at
@@ -943,6 +943,9 @@ TEST(Reader, ParseString_Error) {
     // The surrogate pair in string is invalid.
     TEST_STRING_ERROR(kParseErrorStringUnicodeSurrogateInvalid, "[\"\\uD800X\"]", 2u, 8u);
     TEST_STRING_ERROR(kParseErrorStringUnicodeSurrogateInvalid, "[\"\\uD800\\uFFFF\"]", 2u, 14u);
+
+    // Single low surrogate pair in string is invalid.
+    TEST_STRING_ERROR(kParseErrorStringUnicodeSurrogateInvalid, "[\"\\udc4d\"]", 2u, 8u);
 
     // Missing a closing quotation mark in string.
     TEST_STRING_ERROR(kParseErrorStringMissQuotationMark, "[\"Test]", 7u, 7u);
