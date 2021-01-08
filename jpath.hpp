@@ -37,159 +37,6 @@
 
 namespace Jpath {
 
-inline bool read(const rapidjson::Value &obj, const rapidjson::Value* &ret, int node) {
-	if (ret)
-		ret = nullptr;
-	if (!obj.IsArray() || node < 0)
-		return false;
-	if ((rapidjson::SizeType)node >= obj.Size())
-		return false;
-
-	ret = &obj[node];
-
-	return true;
-}
-inline bool read(const rapidjson::Value &obj, const rapidjson::Value* &ret, const char* node) {
-	if (ret)
-		ret = nullptr;
-	if (!obj.IsObject() || !node)
-		return false;
-	auto entry = obj.FindMember(node);
-	if (entry == obj.MemberEnd())
-		return false;
-
-	ret = &entry->value;
-
-	return true;
-}
-inline bool read(const rapidjson::Value &obj, const rapidjson::Value* &ret, const std::string &node) {
-	return read(obj, ret, node.c_str());
-}
-template<typename Car, typename ...Cdr> bool read(const rapidjson::Value &obj, const rapidjson::Value* &ret, Car car, Cdr ...cdr) {
-	const rapidjson::Value* tmp = nullptr;
-	if (!read(obj, tmp, car))
-		return false;
-	if (!tmp)
-		return false;
-	if (!read(*tmp, ret, cdr ...))
-		return false;
-
-	return true;
-}
-inline bool write(rapidjson::Document &doc, rapidjson::Value &obj, rapidjson::Value* &ret, int node) {
-	ret = nullptr;
-	if (node < 0)
-		return false;
-	if (!obj.IsArray())
-		obj.SetArray();
-	while ((rapidjson::SizeType)node >= obj.Size()) {
-		rapidjson::Value val;
-		val.SetNull();
-		obj.PushBack(val, doc.GetAllocator());
-	}
-	ret = &obj[node];
-
-	return true;
-}
-inline bool write(rapidjson::Document &doc, rapidjson::Value &obj, rapidjson::Value* &ret, const char* node) {
-	ret = nullptr;
-	if (!node)
-		return false;
-	if (!obj.IsObject())
-		obj.SetObject();
-	auto entry = obj.FindMember(node);
-	if (entry == obj.MemberEnd()) {
-		rapidjson::Value key, val;
-		key.SetString(node, doc.GetAllocator());
-		val.SetNull();
-		obj.AddMember(key, val, doc.GetAllocator());
-
-		ret = &obj[node];
-	} else {
-		ret = &entry->value;
-	}
-
-	return true;
-}
-inline bool write(rapidjson::Document &doc, rapidjson::Value &obj, rapidjson::Value* &ret, const std::string &node) {
-	return write(doc, obj, ret, node.c_str());
-}
-template<typename Car, typename ...Cdr> bool write(rapidjson::Document &doc, rapidjson::Value &obj, rapidjson::Value* &ret, Car car, Cdr ...cdr) {
-	rapidjson::Value* tmp = nullptr;
-	if (!write(doc, obj, tmp, car))
-		return false;
-	if (!write(doc, *tmp, ret, cdr ...))
-		return false;
-
-	return true;
-}
-
-template<typename ...Path> bool has(const rapidjson::Value &obj, Path ...path) {
-	const rapidjson::Value* tmp = nullptr;
-	if (!read(obj, tmp, path ...))
-		return false;
-	if (!tmp)
-		return false;
-
-	return true;
-}
-template<typename Ret, typename ...Path> bool get(const rapidjson::Value &obj, Ret &ret, Path ...path) {
-	const rapidjson::Value* tmp = nullptr;
-	if (!read(obj, tmp, path ...))
-		return false;
-	if (!tmp)
-		return false;
-
-	return getValue(*tmp, ret);
-}
-template<template<typename T, typename A = std::allocator<T> > typename Coll, typename Val, typename ...Path> bool get(const rapidjson::Value &obj, Coll<Val> &ret, Path ...path) {
-	const rapidjson::Value* tmp = nullptr;
-	if (!read(obj, tmp, path ...))
-		return false;
-	if (!tmp)
-		return false;
-	if (!tmp->IsArray())
-		return false;
-
-	Coll<Val> result;
-	for (rapidjson::SizeType i = 0; i < tmp->Size(); ++i) {
-		Val val;
-		if (!getValue(tmp[i], val))
-			return false;
-
-		result.push_back(val);
-	}
-	std::swap(result, ret);
-
-	return true;
-}
-template<typename Src, typename ...Path> bool set(rapidjson::Document &doc, rapidjson::Value &obj, Src src, Path ...path) {
-	rapidjson::Value* tmp = nullptr;
-	if (!write(doc, obj, tmp, path ...))
-		return false;
-	if (!tmp)
-		return false;
-
-	setValue(*tmp, src, doc);
-
-	return true;
-}
-template<template<typename T, typename A = std::allocator<T> > typename Coll, typename Val, typename ...Path> bool set(rapidjson::Document &doc, rapidjson::Value &obj, const Coll<Val> &src, Path ...path) {
-	rapidjson::Value* tmp = nullptr;
-	if (!write(doc, obj, tmp, path ...))
-		return false;
-	if (!tmp)
-		return false;
-
-	rapidjson::Value arr;
-	arr.SetArray();
-	for (auto it = src.begin(); it != src.end(); ++it)
-		arr.PushBack(*it, doc.GetAllocator());
-	setValue(*tmp, arr, doc);
-
-	return true;
-}
-
 inline bool getValue(const rapidjson::Value &obj, bool &ret) {
 	if (!obj.IsBool())
 		return false;
@@ -347,6 +194,177 @@ inline void setValue(rapidjson::Value &obj, const std::string &src, rapidjson::D
 }
 inline void setValue(rapidjson::Value &obj, const rapidjson::Value &src, rapidjson::Document &doc) {
 	obj.CopyFrom(src, doc.GetAllocator());
+}
+
+inline bool read(const rapidjson::Value &obj, const rapidjson::Value* &ret, int node) {
+	if (ret)
+		ret = nullptr;
+	if (!obj.IsArray() || node < 0)
+		return false;
+	if ((rapidjson::SizeType)node >= obj.Size())
+		return false;
+
+	ret = &obj[node];
+
+	return true;
+}
+inline bool read(const rapidjson::Value &obj, const rapidjson::Value* &ret, const char* node) {
+	if (ret)
+		ret = nullptr;
+	if (!obj.IsObject() || !node)
+		return false;
+	auto entry = obj.FindMember(node);
+	if (entry == obj.MemberEnd())
+		return false;
+
+	ret = &entry->value;
+
+	return true;
+}
+inline bool read(const rapidjson::Value &obj, const rapidjson::Value* &ret, const std::string &node) {
+	return read(obj, ret, node.c_str());
+}
+template<typename Car, typename ...Cdr> bool read(const rapidjson::Value &obj, const rapidjson::Value* &ret, Car car, Cdr ...cdr) {
+	const rapidjson::Value* tmp = nullptr;
+	if (!read(obj, tmp, car))
+		return false;
+	if (!tmp)
+		return false;
+	if (!read(*tmp, ret, cdr ...))
+		return false;
+
+	return true;
+}
+inline bool write(rapidjson::Document &doc, rapidjson::Value &obj, rapidjson::Value* &ret, int node) {
+	ret = nullptr;
+	if (node < 0)
+		return false;
+	if (!obj.IsArray())
+		obj.SetArray();
+	while ((rapidjson::SizeType)node >= obj.Size()) {
+		rapidjson::Value val;
+		val.SetNull();
+		obj.PushBack(val, doc.GetAllocator());
+	}
+	ret = &obj[node];
+
+	return true;
+}
+inline bool write(rapidjson::Document &doc, rapidjson::Value &obj, rapidjson::Value* &ret, const char* node) {
+	ret = nullptr;
+	if (!node)
+		return false;
+	if (!obj.IsObject())
+		obj.SetObject();
+	auto entry = obj.FindMember(node);
+	if (entry == obj.MemberEnd()) {
+		rapidjson::Value key, val;
+		key.SetString(node, doc.GetAllocator());
+		val.SetNull();
+		obj.AddMember(key, val, doc.GetAllocator());
+
+		ret = &obj[node];
+	} else {
+		ret = &entry->value;
+	}
+
+	return true;
+}
+inline bool write(rapidjson::Document &doc, rapidjson::Value &obj, rapidjson::Value* &ret, const std::string &node) {
+	return write(doc, obj, ret, node.c_str());
+}
+template<typename Car, typename ...Cdr> bool write(rapidjson::Document &doc, rapidjson::Value &obj, rapidjson::Value* &ret, Car car, Cdr ...cdr) {
+	rapidjson::Value* tmp = nullptr;
+	if (!write(doc, obj, tmp, car))
+		return false;
+	if (!write(doc, *tmp, ret, cdr ...))
+		return false;
+
+	return true;
+}
+
+template<typename ...Path> bool has(const rapidjson::Value &obj, Path ...path) {
+	const rapidjson::Value* tmp = nullptr;
+	if (!read(obj, tmp, path ...))
+		return false;
+	if (!tmp)
+		return false;
+
+	return true;
+}
+template<typename Ret, typename ...Path> bool get(const rapidjson::Value &obj, Ret &ret, Path ...path) {
+	const rapidjson::Value* tmp = nullptr;
+	if (!read(obj, tmp, path ...))
+		return false;
+	if (!tmp)
+		return false;
+
+	return getValue(*tmp, ret);
+}
+template<template<typename T, typename A = std::allocator<T> > class Coll, typename Val, typename ...Path> bool get(const rapidjson::Value &obj, Coll<Val> &ret, Path ...path) {
+	const rapidjson::Value* tmp = nullptr;
+	if (!read(obj, tmp, path ...))
+		return false;
+	if (!tmp)
+		return false;
+	if (!tmp->IsArray())
+		return false;
+
+	Coll<Val> result;
+	for (rapidjson::SizeType i = 0; i < tmp->Size(); ++i) {
+		Val val;
+		if (!getValue((*tmp)[i], val))
+			return false;
+
+		result.push_back(val);
+	}
+	std::swap(result, ret);
+
+	return true;
+}
+template<typename Src, typename ...Path> bool set(rapidjson::Document &doc, rapidjson::Value &obj, Src src, Path ...path) {
+	rapidjson::Value* tmp = nullptr;
+	if (!write(doc, obj, tmp, path ...))
+		return false;
+	if (!tmp)
+		return false;
+
+	setValue(*tmp, src, doc);
+
+	return true;
+}
+template<template<typename T, typename A = std::allocator<T> > class Coll, class Val, typename ...Path> bool set(rapidjson::Document &doc, rapidjson::Value &obj, const Coll<Val> &src, Path ...path) {
+	rapidjson::Value* tmp = nullptr;
+	if (!write(doc, obj, tmp, path ...))
+		return false;
+	if (!tmp)
+		return false;
+
+	rapidjson::Value arr;
+	arr.SetArray();
+	for (auto it = src.begin(); it != src.end(); ++it)
+		arr.PushBack(*it, doc.GetAllocator());
+	setValue(*tmp, arr, doc);
+
+	return true;
+}
+template<template<typename T, typename A = std::allocator<T> > class Coll, typename ...Path> bool set(rapidjson::Document &doc, rapidjson::Value &obj, const Coll<std::string> &src, Path ...path) {
+	rapidjson::Value* tmp = nullptr;
+	if (!write(doc, obj, tmp, path ...))
+		return false;
+	if (!tmp)
+		return false;
+
+	rapidjson::Value arr;
+	arr.SetArray();
+	for (auto it = src.begin(); it != src.end(); ++it) {
+		rapidjson::Value val;
+		val.SetString(it->c_str(), doc.GetAllocator());
+		arr.PushBack(val, doc.GetAllocator());
+	}
+	setValue(*tmp, arr, doc);
+
+	return true;
 }
 
 }
