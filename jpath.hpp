@@ -3,7 +3,7 @@
 **
 ** For the latest info, see https://github.com/paladin-t/jpath
 **
-** Copyright (C) 2020 - 2021 Tony Wang
+** Copyright (C) 2020 - 2022 Tony Wang
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a copy
 ** of this software and associated documentation files (the "Software"), to deal
@@ -37,6 +37,38 @@
 
 namespace Jpath {
 
+enum Types {
+	INVALID = 0,
+	NIL = 1 << 0,
+	BOOLEAN = 1 << 1,
+	INT = 1 << 2,
+	REAL = 1 << 3,
+	NUMBER = INT | REAL,
+	STRING = 1 << 4,
+	ARRAY = 1 << 5,
+	OBJECT = 1 << 6
+};
+
+inline Types getType(const rapidjson::Value &obj) {
+	if (obj.IsNull())
+		return NIL;
+	if (obj.IsBool())
+		return BOOLEAN;
+	if (obj.IsNumber())
+		return NUMBER;
+	if (obj.IsInt() || obj.IsUint() || obj.IsInt64() || obj.IsUint64())
+		return INT;
+	if (obj.IsDouble())
+		return REAL;
+	if (obj.IsString())
+		return STRING;
+	if (obj.IsArray())
+		return ARRAY;
+	if (obj.IsObject())
+		return OBJECT;
+
+	return INVALID;
+}
 inline bool getValue(const rapidjson::Value &obj, bool &ret) {
 	if (!obj.IsBool())
 		return false;
@@ -283,6 +315,29 @@ template<typename Car, typename ...Cdr> bool write(rapidjson::Document &doc, rap
 	return true;
 }
 
+inline Types typeOf(const rapidjson::Value &obj) {
+	const rapidjson::Value* tmp = &obj;
+	if (!tmp)
+		return INVALID;
+
+	return getType(*tmp);
+}
+template<typename ...Path> Types typeOf(const rapidjson::Value &obj, Path ...path) {
+	const rapidjson::Value* tmp = nullptr;
+	if (!read(obj, tmp, path ...))
+		return INVALID;
+	if (!tmp)
+		return INVALID;
+
+	return getType(*tmp);
+}
+inline bool has(const rapidjson::Value &obj) {
+	const rapidjson::Value* tmp = &obj;
+	if (!tmp)
+		return false;
+
+	return true;
+}
 template<typename ...Path> bool has(const rapidjson::Value &obj, Path ...path) {
 	const rapidjson::Value* tmp = nullptr;
 	if (!read(obj, tmp, path ...))
@@ -291,6 +346,28 @@ template<typename ...Path> bool has(const rapidjson::Value &obj, Path ...path) {
 		return false;
 
 	return true;
+}
+inline int count(const rapidjson::Value &obj) {
+	const rapidjson::Value* tmp = &obj;
+	if (!tmp)
+		return 0;
+
+	if (!tmp->IsArray())
+		return 0;
+
+	return (int)tmp->GetArray().Size();
+}
+template<typename ...Path> int count(const rapidjson::Value &obj, Path ...path) {
+	const rapidjson::Value* tmp = nullptr;
+	if (!read(obj, tmp, path ...))
+		return 0;
+	if (!tmp)
+		return 0;
+
+	if (!tmp->IsArray())
+		return 0;
+
+	return (int)tmp->GetArray().Size();
 }
 template<typename Ret, typename ...Path> bool get(const rapidjson::Value &obj, Ret &ret, Path ...path) {
 	const rapidjson::Value* tmp = nullptr;
